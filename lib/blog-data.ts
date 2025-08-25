@@ -8,6 +8,7 @@ export interface BlogPost {
   tags: string[];
   slug: string;
   author: string;
+  imageKey: string;
 }
 
 export const blogPosts: BlogPost[] = [
@@ -31,9 +32,11 @@ export const blogPosts: BlogPost[] = [
 <p>I wish every user of chatbots who is reading this to have a partner or a friend who can persuade them to reach out to humans for advice, ideally before they have made up their mind thanks to encouraging AI. After all, it is much harder to educate someone who has already formed strong but wrong beliefs about a subject than someone who is like a blank page, like a sponge, like my daughter in her first grade asking “why” to everything.</p><br/>
     `,
     date: "2025-08-18",
-    readTime: "3 min read",
+    readTime: "5 min read",
     tags: ["Startup", "ChatGPT", "Vertical AI", "Entrepreneurship"],
     slug: "how-ai-is-eliminating-reasons-for-communication-between-humans",
     author: "Kamran Elchuzade",
+    imageKey:
+      "did-we-just-eliminate-another-reason-for-communication-between-humans",
   },
 ];

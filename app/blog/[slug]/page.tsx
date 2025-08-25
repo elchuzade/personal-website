@@ -3,6 +3,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { blogPosts } from "@/lib/blog-data";
+import { blogImages } from "@/app/images/blog";
 
 export default function BlogPost({ params }: { params: { slug: string } }) {
   const post = blogPosts.find((p) => p.slug === params.slug);
@@ -49,6 +50,19 @@ export default function BlogPost({ params }: { params: { slug: string } }) {
                   </span>
                 ))}
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Blog Post Image */}
+        <section className="py-12 bg-white dark:bg-dark-900">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="rounded-xl overflow-hidden shadow-lg">
+              <img
+                src={blogImages[post.imageKey as keyof typeof blogImages]}
+                alt={post.title}
+                className="w-full h-auto object-cover"
+              />
             </div>
           </div>
         </section>

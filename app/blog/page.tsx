@@ -3,6 +3,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import Link from "next/link";
 import MailingList from "@/components/MailingList";
 import { blogPosts } from "@/lib/blog-data";
+import { blogImages } from "@/app/images/blog";
 
 export default function Blog() {
   return (
@@ -34,12 +35,14 @@ export default function Blog() {
                 >
                   <div className="flex flex-col md:flex-row gap-6">
                     <div className="md:w-1/3">
-                      <div className="aspect-video bg-gray-200 dark:bg-dark-700 rounded-lg overflow-hidden">
-                        <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 dark:from-dark-600 dark:to-dark-500 flex items-center justify-center">
-                          <span className="text-4xl text-gray-500 dark:text-gray-400">
-                            📝
-                          </span>
-                        </div>
+                      <div className="aspect-square bg-gray-200 dark:bg-dark-700 rounded-lg overflow-hidden">
+                        <img
+                          src={
+                            blogImages[post.imageKey as keyof typeof blogImages]
+                          }
+                          alt={post.title}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     </div>
 

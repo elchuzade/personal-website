@@ -4,8 +4,13 @@ import Header from "@/components/Header";
 import ScrollToTop from "@/components/ScrollToTop";
 import Link from "next/link";
 import MailingList from "@/components/MailingList";
+import { blogPosts } from "@/lib/blog-data";
+import { blogImages } from "@/app/images/blog";
 
 export default function Home() {
+  // Get the latest blog post
+  const latestPost = blogPosts[0]; // Assuming posts are ordered by date
+
   return (
     <>
       <Header />
@@ -44,41 +49,72 @@ export default function Home() {
             </p>
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
-                <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris nisi ut aliquip ex ea commodo consequat.
-                </p>
-                <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
-                  Duis aute irure dolor in reprehenderit in voluptate velit esse
-                  cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                  occaecat cupidatat non proident, sunt in culpa qui officia
-                  deserunt mollit anim id est laborum.
-                </p>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Latest Blog Post
+                </h3>
+                <div className="mb-6">
+                  <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-3">
+                    <Link
+                      href={`/blog/${latestPost.slug}`}
+                      className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
+                    >
+                      {latestPost.title}
+                    </Link>
+                  </h4>
+                  <p className="text-gray-600 dark:text-gray-300 mb-3">
+                    {latestPost.excerpt}
+                  </p>
+                  <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <time dateTime={latestPost.date}>
+                      {new Date(latestPost.date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </time>
+                    <span>•</span>
+                    <span>{latestPost.readTime}</span>
+                  </div>
+                  <Link
+                    href={`/blog/${latestPost.slug}`}
+                    className="inline-flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors duration-200"
+                  >
+                    Read full article
+                    <svg
+                      className="w-4 h-4 ml-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </Link>
+                </div>
                 <div className="flex flex-wrap gap-3">
-                  {[
-                    "React",
-                    "Next.js",
-                    "TypeScript",
-                    "Tailwind CSS",
-                    "Node.js",
-                    "Python",
-                  ].map((skill) => (
+                  {latestPost.tags.map((tag) => (
                     <span
-                      key={skill}
+                      key={tag}
                       className="px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-sm font-medium"
                     >
-                      {skill}
+                      {tag}
                     </span>
                   ))}
                 </div>
               </div>
               <div className="bg-gradient-to-br from-primary-100 to-blue-200 dark:from-primary-900/30 dark:to-blue-900/30 rounded-2xl p-8">
-                <div className="aspect-square bg-white dark:bg-dark-800 rounded-xl shadow-lg flex items-center justify-center">
-                  <span className="text-6xl text-primary-600 dark:text-primary-400">
-                    👨‍💻
-                  </span>
+                <div className="aspect-square bg-white dark:bg-dark-800 rounded-xl shadow-lg overflow-hidden">
+                  <img
+                    src={
+                      blogImages[latestPost.imageKey as keyof typeof blogImages]
+                    }
+                    alt={latestPost.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
             </div>
