@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { supabase } from "@/lib/supabase";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -14,39 +15,81 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Store email in a simple JSON file (you can upgrade to database later)
-    const subscribers = await getSubscribers();
-    if (subscribers.includes(email)) {
+    // Check if email already exists
+    const { data: existingSubscriber, error: checkError } = await supabase
+      .from("subscribers")
+      .select("email")
+      .eq("email", email)
+      .single();
+
+    if (checkError && checkError.code !== "PGRST116") {
+      console.error("Error checking existing subscriber:", checkError);
+      return NextResponse.json({ error: "Database error" }, { status: 500 });
+    }
+
+    if (existingSubscriber) {
       return NextResponse.json(
         { error: "Email already subscribed" },
         { status: 400 }
       );
     }
 
-    await addSubscriber(email);
+    // Add new subscriber
+    const { error: insertError } = await supabase.from("subscribers").insert([
+      {
+        email,
+        subscribed_at: new Date().toISOString(),
+        status: "active",
+      },
+    ]);
+
+    if (insertError) {
+      console.error("Error inserting subscriber:", insertError);
+      return NextResponse.json(
+        { error: "Failed to subscribe" },
+        { status: 500 }
+      );
+    }
+
+    // Get your verified domain from environment
+    const fromEmail = process.env.FROM_EMAIL || "noreply@yourdomain.com";
+    const notificationEmail = process.env.NOTIFICATION_EMAIL;
+
+    if (!notificationEmail) {
+      console.error("NOTIFICATION_EMAIL environment variable not set");
+    }
 
     // Send notification email to you
-    try {
-      await resend.emails.send({
-        from: "noreply@yourdomain.com", // You'll need to verify this domain
-        to: [process.env.NOTIFICATION_EMAIL || "your-email@example.com"],
-        subject: "🎉 New Mailing List Subscriber!",
-        html: `
-          <h2>New Subscriber Alert!</h2>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-          <p>Someone has subscribed to your mailing list!</p>
-        `,
-      });
-    } catch (emailError) {
-      console.error("Failed to send notification email:", emailError);
-      // Don't fail the subscription if email notification fails
+    if (notificationEmail) {
+      try {
+        // Get total subscriber count for notification
+        const { count: totalSubscribers } = await supabase
+          .from("subscribers")
+          .select("*", { count: "exact", head: true });
+
+        const notificationResult = await resend.emails.send({
+          from: fromEmail,
+          to: [notificationEmail],
+          subject: "🎉 New Mailing List Subscriber!",
+          html: `
+            <h2>New Subscriber Alert!</h2>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+            <p>Someone has subscribed to your mailing list!</p>
+            <p><strong>Total subscribers:</strong> ${totalSubscribers || 0}</p>
+          `,
+        });
+        console.log("Notification email sent:", notificationResult);
+      } catch (emailError) {
+        console.error("Failed to send notification email:", emailError);
+        // Don't fail the subscription if email notification fails
+      }
     }
 
     // Send welcome email to subscriber
     try {
-      await resend.emails.send({
-        from: "noreply@yourdomain.com", // You'll need to verify this domain
+      const welcomeResult = await resend.emails.send({
+        from: fromEmail,
         to: [email],
         subject: "Welcome to Kamran's Mailing List! 🚀",
         html: `
@@ -63,6 +106,7 @@ export async function POST(request: NextRequest) {
           <p>Best regards,<br>Kamran</p>
         `,
       });
+      console.log("Welcome email sent:", welcomeResult);
     } catch (welcomeEmailError) {
       console.error("Failed to send welcome email:", welcomeEmailError);
       // Don't fail the subscription if welcome email fails
@@ -80,44 +124,5 @@ export async function POST(request: NextRequest) {
       { error: "Internal server error" },
       { status: 500 }
     );
-  }
-}
-
-// Simple file-based storage (you can upgrade to database later)
-async function getSubscribers(): Promise<string[]> {
-  try {
-    const fs = await import("fs/promises");
-    const path = await import("path");
-    const filePath = path.join(process.cwd(), "data", "subscribers.json");
-
-    try {
-      const data = await fs.readFile(filePath, "utf-8");
-      return JSON.parse(data);
-    } catch {
-      return [];
-    }
-  } catch {
-    return [];
-  }
-}
-
-async function addSubscriber(email: string): Promise<void> {
-  try {
-    const fs = await import("fs/promises");
-    const path = await import("path");
-    const dataDir = path.join(process.cwd(), "data");
-    const filePath = path.join(dataDir, "subscribers.json");
-
-    // Create data directory if it doesn't exist
-    try {
-      await fs.mkdir(dataDir, { recursive: true });
-    } catch {}
-
-    const subscribers = await getSubscribers();
-    subscribers.push(email);
-
-    await fs.writeFile(filePath, JSON.stringify(subscribers, null, 2));
-  } catch (error) {
-    console.error("Failed to save subscriber:", error);
   }
 }
