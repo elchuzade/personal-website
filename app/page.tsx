@@ -8,8 +8,10 @@ import { blogPosts } from "@/lib/blog-data";
 import { blogImages } from "@/app/images/blog";
 
 export default function Home() {
-  // Get the latest blog post
-  const latestPost = blogPosts[0]; // Assuming posts are ordered by date
+  // Get the latest blog post by date
+  const latestPost = blogPosts.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  )[0];
 
   return (
     <>

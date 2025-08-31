@@ -56,7 +56,7 @@ export default function BlogPost({ params }: { params: { slug: string } }) {
 
         {/* Blog Post Image */}
         <section className="py-12 bg-white dark:bg-dark-900">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="rounded-xl overflow-hidden shadow-lg">
               <img
                 src={blogImages[post.imageKey as keyof typeof blogImages]}
