@@ -30,9 +30,15 @@ export default function Header() {
               </Link>
             ))}
           </nav>
-
           {/* Theme Toggle & Mobile Menu Button */}
           <div className="flex items-center space-x-4">
+            <div
+              data-abbox-widget
+              data-mode="summary"
+              data-theme={theme}
+              data-site="https://elchuzade.com"
+              data-claim="abbox-3f7881d9bbf2934d3d3ec97bebc54a8f"
+            ></div>
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
