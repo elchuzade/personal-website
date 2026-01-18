@@ -37,6 +37,7 @@ export default function Header() {
               data-mode="summary"
               data-theme={theme}
               data-site="https://elchuzade.com"
+              data-brand-color="blue"
               data-claim="abbox-3f7881d9bbf2934d3d3ec97bebc54a8f"
             ></div>
             {/* Theme Toggle */}
